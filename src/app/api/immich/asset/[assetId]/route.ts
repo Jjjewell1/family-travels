@@ -1,0 +1,40 @@
+import { NextRequest, NextResponse } from "next/server";
+
+const IMMICH_API_URL = process.env.IMMICH_API_URL?.trim().replace(/\/$/, "");
+const IMMICH_API_KEY = process.env.IMMICH_API_KEY?.trim();
+
+export async function GET(request: NextRequest, { params }: { params: Promise<{ assetId: string }> }) {
+  const { assetId } = await params;
+
+  if (!IMMICH_API_URL || !IMMICH_API_KEY || !assetId) {
+    return NextResponse.json({ error: "Immich configuration missing" }, { status: 500 });
+  }
+
+  const isThumbnail = request.nextUrl.searchParams.get("thumbnail") === "1";
+  const targetUrl = `${IMMICH_API_URL}/assets/${assetId}/${isThumbnail ? "thumbnail" : "file"}`;
+
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        accept: "application/octet-stream",
+        "x-api-key": IMMICH_API_KEY,
+      },
+    });
+
+    if (!response.ok) {
+      return NextResponse.json({ error: "Failed to fetch asset from Immich" }, { status: response.status });
+    }
+
+    const contentType = response.headers.get("content-type") || "application/octet-stream";
+    const arrayBuffer = await response.arrayBuffer();
+    return new NextResponse(Buffer.from(arrayBuffer), {
+      status: 200,
+      headers: {
+        "content-type": contentType,
+        "cache-control": "public, max-age=3600, s-maxage=3600",
+      },
+    });
+  } catch {
+    return NextResponse.json({ error: "Immich proxy request failed" }, { status: 502 });
+  }
+}

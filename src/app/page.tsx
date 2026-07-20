@@ -19,10 +19,10 @@ export default function Home() {
               A sleek travel blog designed for immersive journal entries, cinematic galleries, and a polished admin experience.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link href="/blog" className="inline-flex items-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">
+              <Link href="/blog" className="inline-flex items-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/60">
                 Explore journal <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/gallery" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-cyan-400/40 hover:bg-cyan-400/10">
+              <Link href="/gallery" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-cyan-400/40 hover:bg-cyan-400/10 focus:outline-none focus:ring-2 focus:ring-cyan-400/40">
                 <Camera className="h-4 w-4" /> View gallery
               </Link>
             </div>
