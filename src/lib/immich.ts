@@ -24,13 +24,10 @@ export function getImmichAssetUrl(assetId: string, isThumbnail = false) {
     return "/placeholder-image.svg";
   }
 
-  if (!IMMICH_API_URL) {
-    return "/placeholder-image.svg";
-  }
-
-  const suffix = isThumbnail ? "/thumbnail" : "/file";
-  return `${IMMICH_API_URL}/assets/${assetId}${suffix}`;
+  const query = isThumbnail ? "?thumbnail=1" : "";
+  return `/api/immich/asset/${assetId}${query}`;
 }
+
 
 function extractAssets(payload: unknown): ImmichAsset[] {
   if (Array.isArray(payload)) {
