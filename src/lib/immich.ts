@@ -38,7 +38,7 @@ export async function getAlbumAssets(albumId: string): Promise<ImmichAsset[]> {
   try {
     const response = await fetch(`${IMMICH_API_URL}/albums/${normalizedAlbumId}/assets`, {
       headers: getImmichHeaders(),
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
