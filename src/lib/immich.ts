@@ -28,6 +28,40 @@ export function getImmichAssetUrl(assetId: string, isThumbnail = false) {
   return `/api/immich/asset/${assetId}${query}`;
 }
 
+function extractAssets(payload: unknown): ImmichAsset[] {
+  if (Array.isArray(payload)) {
+    return payload.filter((asset): asset is ImmichAsset => Boolean((asset as ImmichAsset)?.id));
+  }
+
+  if (!payload || typeof payload !== "object") {
+    return [];
+  }
+
+  const record = payload as Record<string, unknown>;
+  const candidateKeys = ["assets", "items", "mediaItems", "photos", "data", "results", "response"];
+
+  for (const key of candidateKeys) {
+    const value = record[key];
+    if (Array.isArray(value)) {
+      return value.filter((asset): asset is ImmichAsset => Boolean((asset as ImmichAsset)?.id));
+    }
+
+    if (value && typeof value === "object") {
+      const nested = extractAssets(value);
+      if (nested.length) {
+        return nested;
+      }
+    }
+  }
+
+  const nestedObject = Object.values(record).find((value) => value && typeof value === "object");
+  if (nestedObject) {
+    return extractAssets(nestedObject);
+  }
+
+  return [];
+}
+
 export async function getAlbumAssets(albumId: string): Promise<ImmichAsset[]> {
   if (!albumId || !IMMICH_API_URL || !IMMICH_API_KEY) {
     return [];
@@ -36,7 +70,7 @@ export async function getAlbumAssets(albumId: string): Promise<ImmichAsset[]> {
   const normalizedAlbumId = albumId.trim();
 
   try {
-    const response = await fetch(`${IMMICH_API_URL}/albums/${normalizedAlbumId}/assets`, {
+    const response = await fetch(`${IMMICH_API_URL}/albums/${normalizedAlbumId}`, {
       headers: getImmichHeaders(),
       cache: "no-store",
     });
@@ -46,19 +80,7 @@ export async function getAlbumAssets(albumId: string): Promise<ImmichAsset[]> {
     }
 
     const payload = (await response.json()) as unknown;
-
-    if (Array.isArray(payload)) {
-      return payload.filter((asset): asset is ImmichAsset => Boolean((asset as ImmichAsset)?.id));
-    }
-
-    if (payload && typeof payload === "object") {
-      const assets = (payload as { assets?: ImmichAsset[] }).assets;
-      if (Array.isArray(assets)) {
-        return assets.filter((asset): asset is ImmichAsset => Boolean(asset?.id));
-      }
-    }
-
-    return [];
+    return extractAssets(payload);
   } catch {
     return [];
   }
