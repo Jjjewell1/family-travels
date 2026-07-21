@@ -3,6 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 const IMMICH_API_URL = process.env.IMMICH_API_URL?.trim().replace(/\/$/, "");
 const IMMICH_API_KEY = process.env.IMMICH_API_KEY?.trim();
 
+function getImmichProxyHeaders() {
+  const headers = new Headers();
+  headers.set("accept", "application/octet-stream");
+  if (IMMICH_API_KEY) {
+    headers.set("x-api-key", IMMICH_API_KEY);
+  }
+  return headers;
+}
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ assetId: string }> }) {
   const { assetId } = await params;
 
@@ -15,10 +24,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     const response = await fetch(targetUrl, {
-      headers: {
-        accept: "application/octet-stream",
-        "x-api-key": IMMICH_API_KEY,
-      },
+      headers: getImmichProxyHeaders(),
     });
 
     if (!response.ok) {
