@@ -19,8 +19,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: "Immich configuration missing" }, { status: 500 });
   }
 
-
-
     const isThumbnail = request.nextUrl.searchParams.get("thumbnail") === "1";
   const targetUrl = `${IMMICH_API_URL}/asset/${isThumbnail ? "thumbnail" : "file"}/${assetId}`;
 
