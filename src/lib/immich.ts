@@ -39,7 +39,7 @@ function extractAssets(payload: unknown): ImmichAsset[] {
   }
 
   const record = payload as Record<string, unknown>;
-  const candidateKeys = ["assets", "items", "mediaItems", "photos", "data", "results", "response"];
+  const candidateKeys = ["assets", "items", "mediaItems", "photos", "data", "results", "response", "assetIds"];
 
   for (const key of candidateKeys) {
     const value = record[key];
