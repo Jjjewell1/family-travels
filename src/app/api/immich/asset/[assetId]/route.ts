@@ -19,17 +19,26 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: "Immich configuration missing" }, { status: 500 });
   }
 
-  const isThumbnail = request.nextUrl.searchParams.get("thumbnail") === "1";
-  const targetUrl = `${IMMICH_API_URL}/assets/${assetId}/${isThumbnail ? "thumbnail" : "file"}`;
+
+
+    const isThumbnail = request.nextUrl.searchParams.get("thumbnail") === "1";
+  const targetUrl = `${IMMICH_API_URL}/asset/${isThumbnail ? "thumbnail" : "file"}/${assetId}`;
+
 
   try {
-    const response = await fetch(targetUrl, {
+        const response = await fetch(targetUrl, {
       headers: getImmichProxyHeaders(),
     });
 
     if (!response.ok) {
-      return NextResponse.json({ error: "Failed to fetch asset from Immich" }, { status: response.status });
+      console.error(`Immich API error: ${response.status} ${response.statusText} for URL: ${targetUrl}`);
+      return NextResponse.json({ 
+        error: "Failed to fetch asset from Immich", 
+        status: response.status,
+        url: targetUrl 
+      }, { status: response.status });
     }
+
 
     const contentType = response.headers.get("content-type") || "application/octet-stream";
     const arrayBuffer = await response.arrayBuffer();
